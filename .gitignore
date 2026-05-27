@@ -1,0 +1,20 @@
+# Local development caching structures
+**/.terraform/
+*.terraform*
+.terraform.lock.hcl
+**/*.tfstate
+**/*.tfstate.*
+**/*.out
+
+# Credentials and sensitive variable files
+**/*.tfvars
+**/*.tfvars.json
+**/*.pem
+**/*.key
+.env
+
+# System diagnostic outputs
+*.log
+.DS_Store
+
+

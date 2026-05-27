@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+data:
+  mysql-endpoint: "retail-store-catalog-mysql:3306"
+  postgres-endpoint: "retail-store-orders-postgresql:5432"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+type: Opaque
+stringData:
+  password: "YOUR_SECURE_PASSWORD"

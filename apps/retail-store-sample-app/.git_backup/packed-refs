@@ -1,0 +1,81 @@
+# pack-refs with: peeled fully-peeled sorted 
+98b3a4d5f6daf7c7d821e0e29bcc1e8ab41cfaa9 refs/remotes/origin/checkout-otel
+96721d9f4b3726feb4cda9620d8a920fdf4c176c refs/remotes/origin/dependabot/npm_and_yarn/babel/plugin-transform-modules-systemjs-7.29.4
+42f184ddb9de4fd6236aa39c0a97934deac4e446 refs/remotes/origin/dependabot/npm_and_yarn/src/checkout/fast-uri-3.1.2
+53ab7674c09d7dacd422a98d275368940c7a2076 refs/remotes/origin/dependabot/npm_and_yarn/src/checkout/opentelemetry/auto-instrumentations-node-0.75.0
+26f2f059b7c52e69410f8dca29e2d84bbfbf448f refs/remotes/origin/dependabot/npm_and_yarn/src/checkout/opentelemetry/sdk-node-0.217.0
+49c8532f4b9503edc4ae16ada6b1a0e409c35723 refs/remotes/origin/dependabot/npm_and_yarn/src/checkout/protobufjs-7.6.1
+7ee2d43f15affd54980b715aec8fa5caa9281750 refs/remotes/origin/dependabot/npm_and_yarn/src/checkout/protobufjs/utf8-1.1.1
+a87402c3d2ad2133cab84249e7c8a15485705400 refs/remotes/origin/dependabot/npm_and_yarn/src/checkout/uuid-14.0.0
+57e70cf551aad4ad7743054fa5e5b8865c0c599a refs/remotes/origin/dependabot/npm_and_yarn/src/load-generator/axios-1.16.0
+1f4a1cd0978433f53c02ed0fbe623227ab4401fb refs/remotes/origin/dependabot/npm_and_yarn/src/load-generator/protobufjs-7.5.8
+306db115be504430a77ed6616aae4b8ec4551a98 refs/remotes/origin/dependabot/npm_and_yarn/src/load-generator/protobufjs/utf8-1.1.1
+09e8db01ae63318bfef12b8f07e5f4c69dcfcfac refs/remotes/origin/eks-tracing
+ceb0616f670eb3fb8f58ccb1de724fb1c327e896 refs/remotes/origin/fix-helm-dist
+877839ca17bcb3db34b08fb8daf2b851c30151da refs/remotes/origin/load-gen-random-order
+d5c985735ecc5b498c8e850066016fb7076dd9b0 refs/remotes/origin/main
+8eb787097a838de357583d01c79d3d44bf5e0c0e refs/remotes/origin/orders-readme
+376fe753777e24c602027c9e2b52d9f352966959 refs/remotes/origin/persistence-default-off
+ee0c40564ac8676ecd96299ce84a8ec9cb3db0a8 refs/remotes/origin/release-process-revamp
+121bf31bdcd55f1e07b2f58161934992e2f12433 refs/remotes/origin/release/0.1.0
+c8de8ab87d248c780e4071411684351af8a70295 refs/remotes/origin/release/0.2.0
+b80fd4d1c4457bb2737d7918d776f611fcb13cf9 refs/remotes/origin/release/0.3.0
+29907ee8b24e5c983bedc327683421f54537c474 refs/remotes/origin/release/0.4.0
+ee970dfbc986086d1c5d84fadc2c69c19f6f96a4 refs/remotes/origin/release/0.5.0
+26a848fb3844483aeb99d06dedacb59eb4a13960 refs/remotes/origin/release/0.6.0
+44746f78f4f74c4bb178dd3b53c707243030d95a refs/remotes/origin/release/0.7.0
+b8c42821ee7455ba3e2853b7213d158c4b626eed refs/remotes/origin/release/0.7.1
+477ff4cef4e86731e7c21b6cb44fcd5fe293960d refs/remotes/origin/release/0.8.0
+e21594899f9c6b4b2e4c5c01b28a45567c6323db refs/remotes/origin/release/0.8.5
+cbc9147ac9455d284c9ce5540ba6838433318bb5 refs/remotes/origin/renovate/artillery-2.x-lockfile
+3bcdf4f0bda628116e94dd6683c44219bc43e582 refs/remotes/origin/renovate/express-5.x-lockfile
+4892fbd1069a09414dab4edca0022cb058d3c466 refs/remotes/origin/renovate/fs-extra-11.x-lockfile
+0f1410798d8a86f061efb81d120fb611910bd092 refs/remotes/origin/renovate/gorm.io-plugin-opentelemetry-0.x
+a02acfb4417da4c8e1b777d65ce6020c77c430f2 refs/remotes/origin/renovate/io.kiota-kiota-maven-plugin-0.x
+bade18f615b52eb8d125d5c6b3bbafff58fd67cd refs/remotes/origin/renovate/io.opentelemetry.instrumentation-opentelemetry-instrumentation-bom-2.x
+09df2ecd34274d89f730ccc819fc4f00f62c5fb4 refs/remotes/origin/renovate/nestjs-otel-7.x-lockfile
+209995f8b755df58ad09d2608afd9ada5e01b361 refs/remotes/origin/renovate/nestjs-swagger-11.x-lockfile
+e62357f944d874315d8f2283da6d015ea529034c refs/remotes/origin/renovate/node-20.x-lockfile
+b2ad31f62b8ed5c8e9a671eeae5a9b42f6ad119b refs/remotes/origin/renovate/swc-monorepo
+7c6a0a28c866d24924e94f8e7883b08e5f0553ac refs/tags/0.1.0
+^7e4afcc9ce72d93209b93a217753abb06f71d811
+1123af120ae44b0430a975a86d2b71f09b9b0816 refs/tags/0.2.0
+^5cfb0a08e3bcc94ac542f2fc5c54f7d3af7f8304
+f7ec816ed653e0ac3c1a248366730595d536c58c refs/tags/0.3.0
+^6157950e7bd1d69e864d4b82ef84e324548bc85a
+d0d9a5a19c59d50a0713815b849dc6195832ea8d refs/tags/0.4.0
+^0982a57d29968ddcdf4c47f3be55c4ff00d55f3d
+ed9905a5d132966ced7c333adef13062846177e9 refs/tags/0.5.0
+^f3c90c9d61edb5a2a648e1734d3a769e672bfbb7
+3cb45719cd18b3504e6f3c0a2ba392373d43978a refs/tags/0.6.0
+^b664037a95a554d4bb2d8f6d7180580bb386ed17
+21d255e27241abae9f06dc5fcb2ed84320f5df8a refs/tags/0.7.0
+^1df5db5b029228c248c2d94c023e2985294a7bb3
+902ab5c7c859f969b094d70db228e6ef9ab23f9e refs/tags/0.7.1
+^05006a0d5c59a9ea168e7e0ea3f82ab39d70938c
+62b463e21effe8c76827444bdaca68d75b1b4b74 refs/tags/0.8.0
+^d8f7e0ed02139436e4d2712a4c072f26a528d099
+3d7308995e9c209ae9ea083a80a952c9d7768d4c refs/tags/0.8.1
+^f2841219fe10d92dc5a8f650558f1f6bee5bb895
+948db4524db0d93c1df4578d2d19566921a0b35b refs/tags/0.8.2
+^609cd4a048e88ce6bfa2be3361ce69815f057c0f
+e4a84452e6fa017261c17907227e75085c95b8ca refs/tags/0.8.3
+^a943bf6c81b11d096bd50f2851019c1a4d623ecf
+33067fc183e08ab311f9fb54e58031224ddbcc2d refs/tags/0.8.4
+^4dafdb127a033f5401f99c1fd1271ce15f76ad14
+2f142b24f34270bffa02809b0cf6aff2de9f018d refs/tags/0.8.5
+^450e96efc0d25302678b3f6eda3eb6482a112d95
+59b5ab9c3278dd18ed7d5f4051c019c6ca91a811 refs/tags/v1.0.0
+e4a0f12ce8a20c40e32d6178cb97a47bb3b53a93 refs/tags/v1.0.1
+87d7b8a34c88da4ff42995ca0c49c95e2cd84427 refs/tags/v1.0.2
+e2a9635a8b02d8a5819bf197a1dddf752afe067c refs/tags/v1.1.0
+edd7e07632f09b0d2239d55a659b98ad586f3d6f refs/tags/v1.2.0
+ff77f6e4a2453e937985abcb9ce1e0415b3ac9f8 refs/tags/v1.2.1
+b40775dcfa28650a086c92c0da38cb515db58431 refs/tags/v1.2.2
+a770c3dc6d5b8797258ce15317d9734051805ac6 refs/tags/v1.2.3
+0a80256a57ac50a86c39966cdfb7494d29823953 refs/tags/v1.2.4
+da39046444f93b7570a46ed4200564f6f7f11f22 refs/tags/v1.3.0
+2a85668b72dd07f39d4b43c36049dd1f438a1a4e refs/tags/v1.4.0
+0736932097effc41a81e5168ac44864a427c5222 refs/tags/v1.4.1
+e482088945919bc0d337f4953e181eee0d703959 refs/tags/v1.4.2
+d5c985735ecc5b498c8e850066016fb7076dd9b0 refs/tags/v1.5.0
