@@ -1,5 +1,5 @@
 # Project Bedrock - Retail Store EKS Microservices Capstone
-
+............................................................
 Highly available, production-grade microservices deployment running on AWS EKS, automated completely through HashiCorp Terraform.
 
 ## 🏗️ Architecture Design Overview
