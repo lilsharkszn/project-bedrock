@@ -10,56 +10,6 @@ Highly available, production-grade microservices deployment running on AWS EKS, 
 
 ![Project Bedrock Architecture Diagram](./architecture-diagram.png)
 
-
-==================================================================================================
-AWS REGION: us-east-1  |  GLOBAL RESOURCE TAG: [Project: karatu-2025-capstone]
-==================================================================================================
-VPC: project-bedrock-vpc
- │
- ├── Internet Gateway (IGW) <───> [ Public Internet Traffic ]
- │
- ├── AVAILABILITY ZONE A (us-east-1a)               ├── AVAILABILITY ZONE B (us-east-1b)
- │   │                                              │   │
- │   ├── PUBLIC SUBNET (10.0.1.0/24)                │   ├── PUBLIC SUBNET (10.0.2.0/24)
- │   │   ├── AWS ALB (Ingress Entry Point) <────────┼───> [ Shared Ingress Management ]
- │   │   └── NAT Gateway A (Static IP Outbound)     │   └── NAT Gateway B (Optional Backup)
- │   │                                              │
- │   ├── PRIVATE SUBNET (10.0.10.0/24)              │   ├── PRIVATE SUBNET (10.0.20.0/24)
- │   │   └── EKS Node Group (Worker Nodes)          │   └── EKS Node Group (Worker Nodes)
- │   │       └── Pods (namespace: retail-app)       │       └── Pods (namespace: retail-app)
- │   │           ├── ui-service-pod                 │           ├── ui-service-pod
- │   │           ├── catalog-pod ───────────────────┼───────────► catalog-pod
- │   │           └── orders-pod                     │           └── orders-pod
- │   │                                              │
- │   └── DATA LAYER SUBNET (10.0.100.0/24)          │   └── DATA LAYER SUBNET (10.0.200.0/24)
- │       ├── Amazon RDS MySQL (Primary) <───────────┼───────────► Amazon RDS MySQL (Replica)
- │       └── Amazon RDS PostgreSQL (Primary)        │       └── Amazon RDS PostgreSQL (Replica)
- │
- └── AWS NATIVE BACKEND & SERVERLESS FABRIC (Out of Subnet Bounds)
-     ├── Amazon DynamoDB Tables (High-performance application state tracking)
-     │
-     ├── Amazon CloudWatch Engine
-     │   ├── EKS Control Plane Log Streams (API, Audit, Authenticator, ControllerManager, Scheduler)
-     │   └── Application Log Stream Groups (Forwarded via CloudWatch Observability Add-on)
-     │
-     └── Serverless Event-Driven Loop:
-         [ Marketing User / Grader ] ──(s3:PutObject)──► S3 Bucket: bedrock-assets-[student-id]
-                                                                  │
-                                                         (s3:ObjectCreated:*)
-                                                                  │
-                                                                  ▼
-                                                   Lambda: bedrock-asset-processor
-                                                                  │
-                                                        (Writes execution log)
-                                                                  │
-                                                                  ▼
-                                                      CloudWatch Log Streams
-                                                                  │
-                                                                  ▼
-                                                          SNS Email Alart
-==================================================================================================
-
-
 ## 🛠️ Deployment Configuration Engine
 Infrastructure configurations are split across logical files within the `./terraform` directory:
 * `vpc.tf` / `eks.tf` - Core structural network and compute tiers
