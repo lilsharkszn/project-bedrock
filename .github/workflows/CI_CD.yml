@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_ACCESS_KEY_ID: AKIAXP24JV4N6C72S46L #${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_ACCESS_KEY_ID: AKIAXP24JV4NX6SIF5UK # ${{ secrets.AWS_ACCESS_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
 
@@ -30,13 +30,13 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: Debug Secrets
-        run: |
-          echo "ACCESS KEY LENGTH:"
-          echo ${#AWS_ACCESS_KEY_ID}
+     # - name: Debug Secrets
+      #  run: |
+       #   echo "ACCESS KEY LENGTH:"
+        #  echo ${#AWS_ACCESS_KEY_ID}
 
-          echo "SECRET KEY LENGTH:"
-          echo ${#AWS_SECRET_ACCESS_KEY}
+         # echo "SECRET KEY LENGTH:"
+          #echo ${#AWS_SECRET_ACCESS_KEY}
 
       - name: Validate AWS Secret Ingestion
         run: |
