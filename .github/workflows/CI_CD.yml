@@ -1,10 +1,6 @@
 name: 'Terraform CI/CD'
 
 on:
-#  pull_request:
- #   branches:
-  #    - main
-
   push:
     branches:
       - main
@@ -34,6 +30,14 @@ jobs:
         with:
           terraform_wrapper: false
 
+      - name: Debug Secrets
+        run: |
+          echo "ACCESS KEY LENGTH:"
+          echo ${#AWS_ACCESS_KEY_ID}
+
+          echo "SECRET KEY LENGTH:"
+          echo ${#AWS_SECRET_ACCESS_KEY}
+
       - name: Validate AWS Secret Ingestion
         run: |
           if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
@@ -52,18 +56,12 @@ jobs:
       - name: Terraform Validate
         run: terraform -chdir=terraform validate
 
-      - name: Terraform Plan
-        if: github.event_name == 'pull_request'
-        run: terraform -chdir=terraform plan -no-color
-
       - name: Terraform Apply & Artifact Export
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           terraform -chdir=terraform apply -auto-approve
           terraform -chdir=terraform output -json > grading.json
 
       - name: Archive Submission Artifact
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: capstone-grading-deliverable
