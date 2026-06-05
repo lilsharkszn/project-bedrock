@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main
-
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -12,12 +14,102 @@ permissions:
   pull-requests: write
 
 jobs:
-  terraform:
-    name: 'Terraform Engine'
+  # ============================================
+  # JOB 1: Plan on Pull Request
+  # Spec 4.6: "Pull Request triggers terraform plan"
+  # ============================================
+  terraform-plan:
+    name: 'Terraform Plan (PR Review)'
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
 
     env:
-      AWS_ACCESS_KEY_ID: AKIAXP24JV4NX6SIF5UK # ${{ secrets.AWS_ACCESS_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
+
+    steps:
+      - name: Checkout Code Base
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform Engine
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: true
+
+      - name: Validate AWS Secret Ingestion
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "❌ CRITICAL ERROR: GitHub Secrets are resolving to EMPTY strings."
+            echo "Ensure repository secrets are named EXACTLY:"
+            echo "  AWS_ACCESS_KEY_ID"
+            echo "  AWS_SECRET_ACCESS_KEY"
+            exit 1
+          else
+            echo "✅ GitHub Secrets successfully ingested."
+          fi
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform init
+
+      - name: Terraform Validate
+        run: terraform -chdir=terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform -chdir=terraform plan -no-color 2>&1 | tee /tmp/plan_output.txt
+          echo "PLAN_EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_ENV
+        continue-on-error: true
+
+      # Spec 4.6: "The plan output should be posted as a PR comment"
+      - name: Post Plan as PR Comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const planOutput = fs.readFileSync('/tmp/plan_output.txt', 'utf8');
+            const maxLength = 65000;
+            const truncated = planOutput.length > maxLength
+              ? planOutput.substring(0, maxLength) + '\n\n... [output truncated]'
+              : planOutput;
+
+            const comment = `## 🔍 Terraform Plan Output
+
+            <details>
+            <summary>Click to expand full plan</summary>
+
+            \`\`\`hcl
+            ${truncated}
+            \`\`\`
+            </details>
+
+            > Plan generated from commit \`${{ github.sha }}\`
+            > Review carefully before merging to main.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Fail if Plan Failed
+        if: env.PLAN_EXIT_CODE != '0'
+        run: exit 1
+
+  # ============================================
+  # JOB 2: Apply on Merge to Main
+  # Spec 4.6: "Merge to Main triggers terraform apply"
+  # ============================================
+  terraform-apply:
+    name: 'Terraform Apply (Main Deploy)'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
 
@@ -30,21 +122,10 @@ jobs:
         with:
           terraform_wrapper: false
 
-     # - name: Debug Secrets
-      #  run: |
-       #   echo "ACCESS KEY LENGTH:"
-        #  echo ${#AWS_ACCESS_KEY_ID}
-
-         # echo "SECRET KEY LENGTH:"
-          #echo ${#AWS_SECRET_ACCESS_KEY}
-
       - name: Validate AWS Secret Ingestion
         run: |
           if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
             echo "❌ CRITICAL ERROR: GitHub Secrets are resolving to EMPTY strings."
-            echo "Ensure repository secrets are named EXACTLY:"
-            echo "AWS_ACCESS_KEY_ID"
-            echo "AWS_SECRET_ACCESS_KEY"
             exit 1
           else
             echo "✅ GitHub Secrets successfully ingested."
@@ -56,12 +137,30 @@ jobs:
       - name: Terraform Validate
         run: terraform -chdir=terraform validate
 
-      - name: Terraform Apply & Artifact Export
-        run: |
-          terraform -chdir=terraform apply -auto-approve
-          terraform -chdir=terraform output -json > grading.json
+      - name: Terraform Apply
+        run: terraform -chdir=terraform apply -auto-approve
 
-      - name: Archive Submission Artifact
+      - name: Generate grading.json (with sensitive values)
+        run: |
+          # Build grading.json with sensitive developer key exposed
+          terraform -chdir=terraform output -json | \
+            jq --arg secret "$(terraform -chdir=terraform output -raw developer_secret_access_key)" \
+            '.developer_secret_access_key.value = $secret' \
+            > grading.json
+          echo "✅ grading.json generated"
+          cat grading.json
+
+      - name: Commit grading.json back to repo
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add grading.json
+          git diff --staged --quiet || git commit -m "ci: update grading.json from terraform output [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Archive Grading Artifact
         uses: actions/upload-artifact@v4
         with:
           name: capstone-grading-deliverable

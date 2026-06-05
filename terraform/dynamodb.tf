@@ -10,5 +10,6 @@ resource "aws_dynamodb_table" "carts" {
 
   tags = {
     Name = "project-bedrock-carts-dynamodb"
+    Project = "karatu-2025-capstone"  
   }
 }
