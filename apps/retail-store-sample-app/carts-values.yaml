@@ -1,0 +1,8 @@
+app:
+  persistence:
+    provider: dynamodb
+    dynamodb:
+      tableName: items
+      createTable: false
+dynamodb:
+  create: false

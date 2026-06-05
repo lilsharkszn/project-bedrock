@@ -5,15 +5,13 @@ data "aws_caller_identity" "current" {}
 
 data "aws_eks_cluster" "bedrock" {
   name       = "project-bedrock-cluster"
-  depends_on = [module.eks] # Blocks evaluation until cluster resources physically exist
+  depends_on = [module.eks]
 }
 
 locals {
-  # Strip "https://" from the OIDC URL for the IAM policy condition
   oidc_provider_url = replace(data.aws_eks_cluster.bedrock.identity[0].oidc[0].issuer, "https://", "")
 }
 
-# Automatically fetch the complete, official AWS Load Balancer Controller IAM Policy
 data "http" "alb_iam_policy" {
   url = "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json"
 }
@@ -21,14 +19,13 @@ data "http" "alb_iam_policy" {
 resource "aws_iam_policy" "alb_controller_policy" {
   name        = "AWSLoadBalancerControllerIAMPolicy-Bedrock-V2"
   description = "Provides full permissions required by the AWS ALB Ingress Controller"
-  policy      = data.http.alb_iam_policy.response_body # Restores complete SG, WAF, and Target Group matrix
+  policy      = data.http.alb_iam_policy.response_body
 
   tags = {
     Project = "karatu-2025-capstone"
   }
 }
 
-# Create the IAM Role tied to the specific Kubernetes ServiceAccount
 resource "aws_iam_role" "alb_controller_role" {
   name = "AmazonEKSLoadBalancerControllerRole-Bedrock"
 
@@ -62,6 +59,17 @@ resource "aws_iam_role_policy_attachment" "alb_controller_attach" {
 }
 
 # ==========================================
+# KUBERNETES NAMESPACE
+# ==========================================
+resource "kubernetes_namespace" "retail_app" {
+  metadata {
+    name = "retail-app"
+  }
+
+  depends_on = [module.eks]
+}
+
+# ==========================================
 # KUBERNETES DEPLOYMENTS (MICROSERVICES)
 # ==========================================
 
@@ -72,29 +80,45 @@ resource "helm_release" "retail_store_catalog" {
   create_namespace = true
 
   values = [
-    file("${path.module}/../apps/retail-store-sample-app/bedrock-values.yaml")
+    file("${path.module}/../apps/retail-store-sample-app/catalog-values.yaml")
   ]
+
+  depends_on = [kubernetes_namespace.retail_app]
 }
 
 resource "helm_release" "retail_store_orders" {
-  name      = "retail-store-orders"
-  chart     = "../apps/retail-store-sample-app/src/orders/chart"
-  namespace = "retail-app"
+  name             = "retail-store-orders"
+  chart            = "../apps/retail-store-sample-app/src/orders/chart"
+  namespace        = "retail-app"
+  create_namespace = true
 
   values = [
-    file("${path.module}/../apps/retail-store-sample-app/bedrock-values.yaml")
+    file("${path.module}/../apps/retail-store-sample-app/orders-values.yaml")
   ]
+
+  depends_on = [kubernetes_namespace.retail_app]
 }
 
-# Resolved Bug: Added the mandatory missing UI Application Deployment required by Section 4.2
 resource "helm_release" "retail_store_ui" {
-  name      = "ui"
-  chart     = "../apps/retail-store-sample-app/src/ui/chart"
-  namespace = "retail-app"
+  name             = "ui"
+  chart            = "../apps/retail-store-sample-app/src/ui/chart"
+  namespace        = "retail-app"
+  create_namespace = true
+
+  depends_on = [kubernetes_namespace.retail_app]
+}
+
+resource "helm_release" "retail_store_carts" {
+  name             = "carts"
+  chart            = "../apps/retail-store-sample-app/src/cart/chart"
+  namespace        = "retail-app"
+  create_namespace = true
 
   values = [
-    file("${path.module}/../apps/retail-store-sample-app/bedrock-values.yaml")
+    file("${path.module}/../apps/retail-store-sample-app/carts-values.yaml")
   ]
+
+  depends_on = [kubernetes_namespace.retail_app]
 }
 
 # ==========================================
@@ -124,7 +148,7 @@ resource "kubernetes_ingress_v1" "retail_ingress" {
           path_type = "Prefix"
           backend {
             service {
-              name = "ui" # Routes strictly to the UI layer 
+              name = "ui"
               port {
                 number = 80
               }
@@ -140,7 +164,6 @@ output "alb_url" {
   value = try(kubernetes_ingress_v1.retail_ingress.status[0].load_balancer[0].ingress[0].hostname, "ALB provisioning in progress...")
 }
 
-# 1. Create the Service Account with exact IAM role mapping
 resource "kubernetes_service_account" "alb_sa" {
   metadata {
     name      = "aws-load-balancer-controller"
@@ -149,9 +172,10 @@ resource "kubernetes_service_account" "alb_sa" {
       "eks.amazonaws.com/role-arn" = aws_iam_role.alb_controller_role.arn
     }
   }
+
+  depends_on = [module.eks]
 }
 
-# 2. Deploy the controller via Helm with explicit structural mappings
 resource "helm_release" "aws_lb_controller" {
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
@@ -170,4 +194,19 @@ resource "helm_release" "aws_lb_controller" {
       name: aws-load-balancer-controller
     EOF
   ]
+}
+
+# ==========================================
+# CLOUDWATCH OBSERVABILITY EKS ADDON
+# Required by spec section 4.4
+# ==========================================
+resource "aws_eks_addon" "cloudwatch_observability" {
+  cluster_name = module.eks.cluster_name
+  addon_name   = "amazon-cloudwatch-observability"
+
+  depends_on = [module.eks]
+
+  tags = {
+    Project = "karatu-2025-capstone"
+  }
 }

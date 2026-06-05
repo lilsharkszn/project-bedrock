@@ -1,8 +1,12 @@
 # =========================================
-# SNS Topic
+# SNS Topic for Alerts
 # =========================================
 resource "aws_sns_topic" "alerts" {
   name = "project-bedrock-alerts"
+
+  tags = {
+    Project = "karatu-2025-capstone"
+  }
 }
 
 # =========================================
@@ -15,7 +19,7 @@ resource "aws_sns_topic_subscription" "email_target" {
 }
 
 # =========================================
-# CloudWatch Alarm
+# CloudWatch Alarm — High CPU
 # =========================================
 resource "aws_cloudwatch_metric_alarm" "high_cpu_alarm" {
   alarm_name          = "high-cpu-usage"
@@ -26,56 +30,35 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu_alarm" {
   period              = 120
   statistic           = "Average"
   threshold           = 80
+  alarm_description   = "This metric monitors EC2 CPU utilization"
 
-  alarm_description = "This metric monitors EC2 CPU utilization"
+  alarm_actions = [aws_sns_topic.alerts.arn]
 
-  alarm_actions = [
-    aws_sns_topic.alerts.arn
-  ]
+  tags = {
+    Project = "karatu-2025-capstone"
+  }
 }
 
 # =========================================
-# Allow S3 to Publish to SNS
+# Allow S3 Assets Bucket to Publish to SNS
 # =========================================
 resource "aws_sns_topic_policy" "s3_to_sns" {
   arn = aws_sns_topic.alerts.arn
 
   policy = jsonencode({
     Version = "2012-10-17"
-
     Statement = [
       {
-        Effect = "Allow"
-
-        Principal = {
-          Service = "s3.amazonaws.com"
-        }
-
-        Action   = "SNS:Publish"
-        Resource = aws_sns_topic.alerts.arn
-
+        Effect    = "Allow"
+        Principal = { Service = "s3.amazonaws.com" }
+        Action    = "SNS:Publish"
+        Resource  = aws_sns_topic.alerts.arn
         Condition = {
           ArnLike = {
-            "aws:SourceArn" = "arn:aws:s3:::bedrock-assets-alt-soe-025-4423"
+            "aws:SourceArn" = aws_s3_bucket.assets.arn
           }
         }
       }
     ]
   })
-}
-
-# =========================================
-# S3 Bucket Notification
-# =========================================
-resource "aws_s3_bucket_notification" "assets_bucket_notification" {
-  bucket = "bedrock-assets-alt-soe-025-4423"
-
-  topic {
-    topic_arn = aws_sns_topic.alerts.arn
-    events    = ["s3:ObjectCreated:*"]
-  }
-
-  depends_on = [
-    aws_sns_topic_policy.s3_to_sns
-  ]
 }

@@ -18,7 +18,7 @@ variable "vpc_name" {
 
 variable "student_id" {
   type        = string
-  default     = "alt-soe-025-4423"
+  default     = "alt-soe-025-4423-2"
   description = "Sanitized student ID used for unique naming constraints."
 }
 

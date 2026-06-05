@@ -1,31 +1,45 @@
 # bedrock-values.yaml
+# Corrected to match actual Helm chart value structure
 
-# 1. Configure the Catalog Microservice (Connects to PostgreSQL)
+# Catalog service → MySQL RDS
 catalog:
-  postgresql:
-    enabled: false # Disables the fragile in-cluster Postgres pod
-  db:
-    endpoint: bedrock-postgres.cozk2e2oeu9c.us-east-1.rds.amazonaws.com:5432
-    name: retaildb
-    username: dbadmin
-    password: SecureBedrockPass2026!
-
-# 2. Configure the Orders Microservice (Connects to MySQL)
-orders:
+  app:
+    persistence:
+      provider: mysql
+      endpoint: bedrock-mysql.cedysk464ef6.us-east-1.rds.amazonaws.com:3306
+      database: catalog
+      secret:
+        create: true
+        name: catalog-db
+        username: dbadmin
+        password: SecureBedrockPass2026!
   mysql:
-    enabled: false # Disables the fragile in-cluster MySQL pod
-  db:
-    endpoint: bedrock-mysql.cozk2e2oeu9c.us-east-1.rds.amazonaws.com:3306
-    name: orders
-    username: dbadmin
-    password: SecureBedrockPass2026!
+    create: false
 
-# 3. Configure the Carts Microservice (Bypasses local DB for real DynamoDB)
+# Orders service → PostgreSQL RDS
+orders:
+  app:
+    persistence:
+      provider: postgresql
+      endpoint: bedrock-postgres.cedysk464ef6.us-east-1.rds.amazonaws.com:5432
+      database: orders
+      secret:
+        create: true
+        name: orders-db
+        username: dbadmin
+        password: SecureBedrockPass2026!
+    messaging:
+      provider: in-memory
+  postgresql:
+    create: false
+
+# Carts service → DynamoDB
 carts:
+  app:
+    persistence:
+      provider: dynamodb
+      dynamodb:
+        tableName: items
+        createTable: false
   dynamodb:
-    enabled: false # Disables the local mock DynamoDB pod; forces use of real AWS DynamoDB
-
-resources:
-  requests:
-    memory: "128Mi"
-    cpu: "100m"
+    create: false

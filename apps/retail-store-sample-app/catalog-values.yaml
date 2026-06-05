@@ -1,0 +1,12 @@
+app:
+  persistence:
+    provider: mysql
+    endpoint: bedrock-mysql.cedysk464ef6.us-east-1.rds.amazonaws.com:3306
+    database: catalog
+    secret:
+      create: true
+      name: catalog-db
+      username: dbadmin
+      password: SecureBedrockPass2026!
+mysql:
+  create: false
