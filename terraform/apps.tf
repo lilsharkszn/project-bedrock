@@ -12,14 +12,10 @@ locals {
   oidc_provider_url = replace(data.aws_eks_cluster.bedrock.identity[0].oidc[0].issuer, "https://", "")
 }
 
-data "http" "alb_iam_policy" {
-  url = "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json"
-}
-
 resource "aws_iam_policy" "alb_controller_policy" {
   name        = "AWSLoadBalancerControllerIAMPolicy-Bedrock-V2"
   description = "Provides full permissions required by the AWS ALB Ingress Controller"
-  policy      = data.http.alb_iam_policy.response_body
+  policy      = file("${path.module}/alb_iam_policy.json")
 
   tags = {
     Project = "karatu-2025-capstone"
@@ -80,10 +76,26 @@ resource "helm_release" "retail_store_catalog" {
   create_namespace = true
 
   values = [
-    file("${path.module}/../apps/retail-store-sample-app/catalog-values.yaml")
+    <<-HELMEOF
+    fullnameOverride: catalog
+    app:
+      persistence:
+        provider: mysql
+        endpoint: ${aws_db_instance.mysql.address}:3306
+        database: catalog
+        secret:
+          create: false
+          name: catalog-db
+    mysql:
+      create: false
+    HELMEOF
   ]
 
-  depends_on = [kubernetes_namespace.retail_app]
+  depends_on = [
+    aws_db_instance.mysql,
+    kubernetes_secret.catalog_db,
+    kubernetes_namespace.retail_app
+  ]
 }
 
 resource "helm_release" "retail_store_orders" {
@@ -93,19 +105,28 @@ resource "helm_release" "retail_store_orders" {
   create_namespace = true
 
   values = [
-    file("${path.module}/../apps/retail-store-sample-app/orders-values.yaml")
+    <<-HELMEOF
+    fullnameOverride: orders
+    app:
+      persistence:
+        provider: postgresql
+        endpoint: ${aws_db_instance.postgres.address}:5432
+        database: orders
+        secret:
+          create: false
+          name: orders-db
+      messaging:
+        provider: in-memory
+    postgresql:
+      create: false
+    HELMEOF
   ]
 
-  depends_on = [kubernetes_namespace.retail_app]
-}
-
-resource "helm_release" "retail_store_ui" {
-  name             = "ui"
-  chart            = "../apps/retail-store-sample-app/src/ui/chart"
-  namespace        = "retail-app"
-  create_namespace = true
-
-  depends_on = [kubernetes_namespace.retail_app]
+  depends_on = [
+    aws_db_instance.postgres,
+    kubernetes_secret.orders_db,
+    kubernetes_namespace.retail_app
+  ]
 }
 
 resource "helm_release" "retail_store_carts" {
@@ -115,15 +136,109 @@ resource "helm_release" "retail_store_carts" {
   create_namespace = true
 
   values = [
-    file("${path.module}/../apps/retail-store-sample-app/carts-values.yaml")
+    <<-HELMEOF
+    fullnameOverride: carts
+    app:
+      persistence:
+        provider: dynamodb
+        dynamodb:
+          tableName: items
+          createTable: false
+    dynamodb:
+      create: false
+    HELMEOF
   ]
 
   depends_on = [kubernetes_namespace.retail_app]
 }
 
+resource "helm_release" "retail_store_checkout" {
+  name             = "checkout"
+  chart            = "../apps/retail-store-sample-app/src/checkout/chart"
+  namespace        = "retail-app"
+  create_namespace = true
+
+  values = [
+    <<-HELMEOF
+    fullnameOverride: checkout
+    app:
+      persistence:
+        provider: redis
+      endpoints:
+        orders: http://orders:80
+    redis:
+      create: true
+    HELMEOF
+  ]
+
+  depends_on = [
+    kubernetes_namespace.retail_app,
+    helm_release.retail_store_orders
+  ]
+}
+
+resource "helm_release" "retail_store_ui" {
+  name             = "ui"
+  chart            = "../apps/retail-store-sample-app/src/ui/chart"
+  namespace        = "retail-app"
+  create_namespace = true
+
+  values = [
+    <<-HELMEOF
+    fullnameOverride: ui
+    app:
+      endpoints:
+        catalog: http://catalog:80
+        carts: http://carts:80
+        checkout: http://checkout:80
+        orders: http://orders:80
+    HELMEOF
+  ]
+
+  depends_on = [
+    kubernetes_namespace.retail_app,
+    helm_release.retail_store_catalog,
+    helm_release.retail_store_orders,
+    helm_release.retail_store_carts,
+    helm_release.retail_store_checkout
+  ]
+}
+
 # ==========================================
 # INGRESS CONFIGURATION & CORE NETWORKING
 # ==========================================
+
+resource "kubernetes_service_account" "alb_sa" {
+  metadata {
+    name      = "aws-load-balancer-controller"
+    namespace = "kube-system"
+    annotations = {
+      "eks.amazonaws.com/role-arn" = aws_iam_role.alb_controller_role.arn
+    }
+  }
+
+  depends_on = [module.eks]
+}
+
+resource "helm_release" "aws_lb_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+
+  depends_on = [kubernetes_service_account.alb_sa]
+
+  values = [
+    <<-HELMEOF
+    clusterName: project-bedrock-cluster
+    vpcId: ${module.vpc.vpc_id}
+    region: us-east-1
+    serviceAccount:
+      create: false
+      name: aws-load-balancer-controller
+    HELMEOF
+  ]
+}
 
 resource "kubernetes_ingress_v1" "retail_ingress" {
   depends_on = [helm_release.aws_lb_controller, helm_release.retail_store_ui]
@@ -162,38 +277,6 @@ resource "kubernetes_ingress_v1" "retail_ingress" {
 
 output "alb_url" {
   value = try(kubernetes_ingress_v1.retail_ingress.status[0].load_balancer[0].ingress[0].hostname, "ALB provisioning in progress...")
-}
-
-resource "kubernetes_service_account" "alb_sa" {
-  metadata {
-    name      = "aws-load-balancer-controller"
-    namespace = "kube-system"
-    annotations = {
-      "eks.amazonaws.com/role-arn" = aws_iam_role.alb_controller_role.arn
-    }
-  }
-
-  depends_on = [module.eks]
-}
-
-resource "helm_release" "aws_lb_controller" {
-  name       = "aws-load-balancer-controller"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
-
-  depends_on = [kubernetes_service_account.alb_sa]
-
-  values = [
-    <<-EOF
-    clusterName: project-bedrock-cluster
-    vpcId: ${module.vpc.vpc_id}
-    region: us-east-1
-    serviceAccount:
-      create: false
-      name: aws-load-balancer-controller
-    EOF
-  ]
 }
 
 # ==========================================
