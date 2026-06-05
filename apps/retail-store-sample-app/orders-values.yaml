@@ -4,10 +4,8 @@ app:
     endpoint: bedrock-postgres.cedysk464ef6.us-east-1.rds.amazonaws.com:5432
     database: orders
     secret:
-      create: true
+      create: false
       name: orders-db
-      username: dbadmin
-      password: SecureBedrockPass2026!
   messaging:
     provider: in-memory
 postgresql:

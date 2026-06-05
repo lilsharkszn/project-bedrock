@@ -1,7 +1,7 @@
 # bedrock-values.yaml
-# Corrected to match actual Helm chart value structure
+# Credentials managed via SSM Parameter Store + Terraform
+# Passwords are NEVER stored in this file
 
-# Catalog service → MySQL RDS
 catalog:
   app:
     persistence:
@@ -9,14 +9,11 @@ catalog:
       endpoint: bedrock-mysql.cedysk464ef6.us-east-1.rds.amazonaws.com:3306
       database: catalog
       secret:
-        create: true
+        create: false
         name: catalog-db
-        username: dbadmin
-        password: SecureBedrockPass2026!
   mysql:
     create: false
 
-# Orders service → PostgreSQL RDS
 orders:
   app:
     persistence:
@@ -24,16 +21,13 @@ orders:
       endpoint: bedrock-postgres.cedysk464ef6.us-east-1.rds.amazonaws.com:5432
       database: orders
       secret:
-        create: true
+        create: false
         name: orders-db
-        username: dbadmin
-        password: SecureBedrockPass2026!
     messaging:
       provider: in-memory
   postgresql:
     create: false
 
-# Carts service → DynamoDB
 carts:
   app:
     persistence:
