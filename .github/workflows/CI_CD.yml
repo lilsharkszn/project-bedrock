@@ -14,10 +14,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  # ============================================
-  # JOB 1: Plan on Pull Request
-  # Spec 4.6: "Pull Request triggers terraform plan"
-  # ============================================
   terraform-plan:
     name: 'Terraform Plan (PR Review)'
     runs-on: ubuntu-latest
@@ -62,7 +58,6 @@ jobs:
           echo "PLAN_EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_ENV
         continue-on-error: true
 
-      # Spec 4.6: "The plan output should be posted as a PR comment"
       - name: Post Plan as PR Comment
         uses: actions/github-script@v7
         with:
@@ -99,10 +94,6 @@ jobs:
         if: env.PLAN_EXIT_CODE != '0'
         run: exit 1
 
-  # ============================================
-  # JOB 2: Apply on Merge to Main
-  # Spec 4.6: "Merge to Main triggers terraform apply"
-  # ============================================
   terraform-apply:
     name: 'Terraform Apply (Main Deploy)'
     runs-on: ubuntu-latest
@@ -131,6 +122,19 @@ jobs:
             echo "✅ GitHub Secrets successfully ingested."
           fi
 
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+          kubectl version --client
+
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --name project-bedrock-cluster \
+            --region us-east-1
+
       - name: Terraform Init
         run: terraform -chdir=terraform init
 
@@ -142,7 +146,6 @@ jobs:
 
       - name: Generate grading.json (with sensitive values)
         run: |
-          # Build grading.json with sensitive developer key exposed
           terraform -chdir=terraform output -json | \
             jq --arg secret "$(terraform -chdir=terraform output -raw developer_secret_access_key)" \
             '.developer_secret_access_key.value = $secret' \
