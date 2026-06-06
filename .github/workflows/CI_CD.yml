@@ -144,13 +144,12 @@ jobs:
       - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve
 
-      - name: Generate grading.json (with sensitive values)
+      - name: Generate grading.json (secrets redacted)
         run: |
           terraform -chdir=terraform output -json | \
-            jq --arg secret "$(terraform -chdir=terraform output -raw developer_secret_access_key)" \
-            '.developer_secret_access_key.value = $secret' \
+            jq '.developer_secret_access_key.value = "REDACTED-SEE-GOOGLE-DOC"' \
             > grading.json
-          echo "✅ grading.json generated"
+          echo "✅ grading.json generated with secret redacted"
           cat grading.json
 
       - name: Commit grading.json back to repo
