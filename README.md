@@ -59,7 +59,7 @@ Highly available, production-grade microservices deployment running on AWS EKS, 
 |----------|-----|
 | HTTP | http://altsoe0254423.ddns.net |
 | HTTPS | https://altsoe0254423.ddns.net |
-| ALB | k8s-retailap-retailst-17d19cf248-753918446.us-east-1.elb.amazonaws.com |
+| ALB | k8s-retailap-retailst-17d19cf248-712128132.us-east-1.elb.amazonaws.com |
 
 ### Running Pods (retail-app namespace)
 

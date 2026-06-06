@@ -1,0 +1,47 @@
+{
+  "alb_url": {
+    "sensitive": false,
+    "type": "string",
+    "value": "k8s-retailap-retailst-17d19cf248-753918446.us-east-1.elb.amazonaws.com"
+  },
+  "assets_bucket_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "bedrock-assets-adejare-alt-soe-025-4423"
+  },
+  "cluster_endpoint": {
+    "sensitive": false,
+    "type": "string",
+    "value": "https://2FC683E0C6FD533A942914EF4E4B4007.gr7.us-east-1.eks.amazonaws.com"
+  },
+  "cluster_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "project-bedrock-cluster"
+  },
+  "custom_host_address": {
+    "sensitive": false,
+    "type": "string",
+    "value": "altsoe0254423.ddns.net"
+  },
+  "developer_access_key_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "REDACTED-SEE-GOOGLE-DOC"
+  },
+  "developer_secret_access_key": {
+    "sensitive": true,
+    "type": "string",
+    "value": "REDACTED-SEE-GOOGLE-DOC"
+  },
+  "region": {
+    "sensitive": false,
+    "type": "string",
+    "value": "us-east-1"
+  },
+  "vpc_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "vpc-04c53b138a32c4cf6"
+  }
+}

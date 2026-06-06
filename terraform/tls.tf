@@ -1,6 +1,3 @@
-# ==========================================
-# CERT-MANAGER INSTALLATION
-# ==========================================
 resource "helm_release" "cert_manager" {
   name             = "cert-manager"
   repository       = "https://charts.jetstack.io"
@@ -11,23 +8,19 @@ resource "helm_release" "cert_manager" {
 
   values = [<<-YAML
     installCRDs: true
-    startupapicheck:  
-      enabled: false 
+    startupapicheck:
+      enabled: false
   YAML
   ]
 
   depends_on = [module.eks]
 }
 
-# 30s wait time for CRDs to fully register before creating ClusterIssuer
 resource "time_sleep" "wait_for_cert_manager" {
   depends_on      = [helm_release.cert_manager]
   create_duration = "30s"
 }
 
-# ==========================================
-# ENCRYPT CLUSTER ISSUER
-# ==========================================
 resource "null_resource" "cluster_issuer" {
   depends_on = [time_sleep.wait_for_cert_manager]
 
@@ -54,6 +47,7 @@ spec:
                 alb.ingress.kubernetes.io/scheme: internet-facing
                 alb.ingress.kubernetes.io/target-type: ip
                 alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+                alb.ingress.kubernetes.io/group.name: bedrock-retail
 YAML
     BASH
   }

@@ -251,7 +251,8 @@ resource "kubernetes_ingress_v1" "retail_ingress" {
     name      = "retail-store-ingress"  
     namespace = "retail-app"  
     annotations = {  
-      "alb.ingress.kubernetes.io/scheme"       = "internet-facing"  
+      "alb.ingress.kubernetes.io/scheme"       = "internet-facing"
+      "alb.ingress.kubernetes.io/group.name"        = "bedrock-retail"  
       "alb.ingress.kubernetes.io/target-type"  = "ip"  
       "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}, {\"HTTPS\": 443}]"  
       "cert-manager.io/cluster-issuer"         = "letsencrypt-prod"  
