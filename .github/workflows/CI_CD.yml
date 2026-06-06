@@ -14,6 +14,9 @@ permissions:
   pull-requests: write
 
 jobs:
+  # ============================================
+  # JOB 1: Plan on Pull Request
+  # ============================================
   terraform-plan:
     name: 'Terraform Plan (PR Review)'
     runs-on: ubuntu-latest
@@ -94,6 +97,9 @@ jobs:
         if: env.PLAN_EXIT_CODE != '0'
         run: exit 1
 
+  # ============================================
+  # JOB 2: Apply on Merge to Main
+  # ============================================
   terraform-apply:
     name: 'Terraform Apply (Main Deploy)'
     runs-on: ubuntu-latest
@@ -144,12 +150,15 @@ jobs:
       - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve
 
-      - name: Generate grading.json (secrets redacted)
+      - name: Generate grading.json (credentials redacted)
         run: |
           terraform -chdir=terraform output -json | \
-            jq '.developer_secret_access_key.value = "REDACTED-SEE-GOOGLE-DOC"' \
+            jq '
+              .developer_secret_access_key.value = "REDACTED-SEE-GOOGLE-DOC" |
+              .developer_access_key_id.value = "REDACTED-SEE-GOOGLE-DOC"
+            ' \
             > grading.json
-          echo "✅ grading.json generated with secret redacted"
+          echo "✅ grading.json generated with all credentials redacted"
           cat grading.json
 
       - name: Commit grading.json back to repo
