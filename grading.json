@@ -2,7 +2,7 @@
   "alb_url": {
     "sensitive": false,
     "type": "string",
-    "value": "k8s-retailap-retailst-17d19cf248-753918446.us-east-1.elb.amazonaws.com"
+    "value": "k8s-retailap-retailst-17d19cf248-712128132.us-east-1.elb.amazonaws.com"
   },
   "assets_bucket_name": {
     "sensitive": false,
