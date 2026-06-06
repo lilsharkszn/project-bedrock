@@ -19,3 +19,13 @@
 
 
 terraform/tfplan
+
+# Terraform sensitive outputs - handled carefully for grading
+# Uncomment below if you want to exclude from git entirely
+# grading.json
+
+# Never commit these
+*.tfstate
+*.tfstate.backup
+.terraform/
+terraform.tfvars

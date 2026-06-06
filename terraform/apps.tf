@@ -240,40 +240,51 @@ resource "helm_release" "aws_lb_controller" {
   ]
 }
 
-resource "kubernetes_ingress_v1" "retail_ingress" {
-  depends_on = [helm_release.aws_lb_controller, helm_release.retail_store_ui]
-
-  metadata {
-    name      = "retail-store-ingress"
-    namespace = "retail-app"
-    annotations = {
-      "alb.ingress.kubernetes.io/scheme"       = "internet-facing"
-      "alb.ingress.kubernetes.io/target-type"  = "ip"
-      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}]"
-    }
-  }
-
-  spec {
-    ingress_class_name = "alb"
-    rule {
-      host = "altsoe0254423.ddns.net"
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = "ui"
-              port {
-                number = 80
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
+resource "kubernetes_ingress_v1" "retail_ingress" {  
+  depends_on = [  
+    helm_release.aws_lb_controller,  
+    helm_release.retail_store_ui,  
+    null_resource.cluster_issuer  
+  ]  
+  
+  metadata {  
+    name      = "retail-store-ingress"  
+    namespace = "retail-app"  
+    annotations = {  
+      "alb.ingress.kubernetes.io/scheme"       = "internet-facing"  
+      "alb.ingress.kubernetes.io/target-type"  = "ip"  
+      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}, {\"HTTPS\": 443}]"  
+      "cert-manager.io/cluster-issuer"         = "letsencrypt-prod"  
+    }  
+  }  
+  
+  spec {  
+    ingress_class_name = "alb"  
+  
+    tls {  
+      hosts       = ["altsoe0254423.ddns.net"]  
+      secret_name = "retail-store-tls"  
+    }  
+  
+    rule {  
+      host = "altsoe0254423.ddns.net"  
+      http {  
+        path {  
+          path      = "/"  
+          path_type = "Prefix"  
+          backend {  
+            service {  
+              name = "ui"  
+              port {  
+                number = 80  
+              }  
+            }  
+          }  
+        }  
+      }  
+    }  
+  }  
+}  
 
 output "alb_url" {
   value = try(kubernetes_ingress_v1.retail_ingress.status[0].load_balancer[0].ingress[0].hostname, "ALB provisioning in progress...")
