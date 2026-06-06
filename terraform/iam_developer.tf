@@ -44,7 +44,7 @@ resource "aws_iam_user_policy" "s3_upload" {
         ]
 
         Resource = [
-          "arn:aws:s3:::bedrock-assets-${var.student_id}/*"
+          "arn:aws:s3:::${var.assets_bucket_name}/*"
         ]
       }
     ]

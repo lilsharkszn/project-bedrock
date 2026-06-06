@@ -1,6 +1,6 @@
 # 1. The Production Private S3 Asset Bucket
 resource "aws_s3_bucket" "assets" {
-  bucket        = "bedrock-assets-${var.student_id}"
+  bucket        = var.assets_bucket_name
   force_destroy = true # Allows clean cleanup during teardown
 }
 

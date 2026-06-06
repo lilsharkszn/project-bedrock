@@ -18,7 +18,7 @@ variable "vpc_name" {
 
 variable "student_id" {
   type        = string
-  default     = "alt-soe-025-4423-2"
+  default     = "alt-soe-025-4423"
   description = "Sanitized student ID used for unique naming constraints."
 }
 
@@ -26,4 +26,10 @@ variable "app_namespace" {
   type        = string
   default     = "retail-app"
   description = "Kubernetes namespace for the microservices application."
+}
+
+variable "assets_bucket_name" {
+  type        = string
+  default     = "bedrock-assets-adejare-alt-soe-025-4423"
+  description = "Unique S3 assets bucket name for this deployment, bedrock-asset-alt-soe-025-4423 was attached to previous aws account"
 }
