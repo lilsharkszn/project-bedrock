@@ -57,6 +57,10 @@ resource "aws_lambda_function" "processor" {
   handler          = "index.lambda_handler"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   runtime          = "python3.11"
+
+  lifecycle {
+    ignore_changes = [last_modified, source_code_hash]
+  }
 }
 
 # 5. Allow S3 Bucket to invoke the Lambda function
