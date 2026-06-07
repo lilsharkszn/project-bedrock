@@ -59,7 +59,7 @@ resource "aws_lambda_function" "processor" {
   runtime          = "python3.11"
 
   lifecycle {
-    ignore_changes = [last_modified, source_code_hash]
+    ignore_changes = [last_modified]
   }
 }
 
