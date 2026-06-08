@@ -160,22 +160,18 @@ aws s3 cp /etc/hostname s3://bedrock-assets-adejare-alt-soe-025-4423/test.txt aw
 
 ## TLS / HTTPS
 
-### Implementation
-- cert-manager installed via Helm in `cert-manager` namespace
-- Let's Encrypt **production** ACME issuer (`letsencrypt-prod`)
-- HTTP-01 challenge via ALB Ingress
-- TLS certificate successfully issued and valid
+## Two-Level TLS Implementation Attempted
 
-### Certificate Status
+### Level 1: Kubernetes Cluster (Let's Encrypt via cert-manager)
 | Field | Value |
 |-------|-------|
-| Certificate Name | retail-store-tls |
-| Domain | altsoe0254423.ddns.net |
-| Status | ✅ READY: True |
-| Issuer | letsencrypt-prod (Let's Encrypt) |
-| Valid From | 2026-06-06 |
+| Certificate | retail-store-tls |
+| Issuer | letsencrypt-prod |
+| Status | READY: True |
 | Valid Until | 2026-09-04 |
-| Secret | retail-store-tls (kubernetes.io/tls) |
+| Lives In | Kubernetes Secret |
+| Used By | In-cluster Ingress |
+| Blocked By | Nothing - fully working |
 
 ### Verification Commands
 ```bash
@@ -184,20 +180,46 @@ kubectl describe certificate retail-store-tls -n retail-app
 kubectl get secret retail-store-tls -n retail-app
 kubectl get clusterissuer
 kubectl get pods -n cert-manager
-⚠️ HTTPS at ALB Level — Limitation
-Status: TLS Certificate Issued and Valid / ALB-Level HTTPS Blocked by DNS Constraint
-The Let's Encrypt TLS certificate is fully issued and valid (confirmed READY: True). However, HTTPS termination at the AWS ALB requires an ACM (AWS Certificate Manager) certificate, not a Kubernetes TLS secret.
-Root Cause: The AWS ALB Controller requires an ACM certificate ARN to open port 443. ACM certificate validation requires adding a CNAME DNS record to prove domain ownership. This was not possible due to the following constraint:
-Method	Result
-DNS Validation via NoIP	❌ Free NoIP only supports one CNAME per hostname (already used for HTTP ALB routing)
 
+### Let's Encrypt Certificate (Kubernetes Level)
+![Lets Encrypt via cert-manager](./tls-https-screenshot/Lets-Encrypt-via-cert-manager.png)
+
+### Level 2: AWS Infrastructure (ACM for ALB)
+| Field | Value |
+|-------|-------|
+| Certificate ARN | arn:aws:acm:us-east-1:225201316405:certificate/0a974b9a... |
+| Domain | 54.163.208.187.nip.io |
+| Status | PENDING_VALIDATION |
+| Lives In | AWS Certificate Manager |
+| Used By | AWS ALB (port 443) |
+| Blocked By | nip.io is read-only — CNAME validation record cannot be added |
+
+### ACM Certificate Request (AWS Level)
+![ACM for ALB](./tls-https-screenshot/ACM-for_ALB.png)
+
+Method  Result
+DNS Validation via NoIP ❌ Free NoIP only supports one CNAME per hostname (already used for HTTP ALB routing)
+
+### Grabbing ALB DNS and IPs
 ![Grabbing ALB DNS IP](./tls-https-screenshot/grabing-alb-dns-ip.png)
 
+### Requesting ACM Certificate
 ![Requesting Cert](./tls-https-screenshot/requesting-cert.png)
 
+### Verifying nip.io DNS Resolution
 ![Verifying](./tls-https-screenshot/digging-https-endpoint.png)
 
-Dynamic IP (nip.io workaround)	❌ ALB IPs rotate dynamically — unreliable for production use
+### Describing Issued Certificate
+![Describing Cert](./tls-https-screenshot/describing-cert.png)
+
+Dynamic IP (nip.io workaround)  ❌ ALB IPs rotate dynamically — unreliable for production use
+
+## Why HTTPS Is Not Active
+The two certificates exist at different platform levels and cannot substitute for each other:
+- The ALB specifically requires an ACM certificate (AWS level)
+- The Let's Encrypt certificate exists at the Kubernetes level and cannot be attached to the ALB
+- The ACM certificate cannot be validated because nip.io does not allow custom DNS records
+- Full HTTPS would be immediately achievable with a domain hosted on Route 53 or any DNS provider that allows custom CNAME records
 
 ---
 
@@ -226,17 +248,14 @@ helm upgrade --install bedrock-retail ./apps/retail-store-sample-app
 
 ## Screenshots and Proof of Deployment
 
-### Architecture Diagram
-![Architecture](./bedrock-screenshots/bedrockarchitecture.png)
-
 ### All Pods Running
-![Pods](./bedrock-screenshots/kubectl%20get%20pods.png)
+![Pods](./bedrock-screenshots/kubectl-get-pods.png)
 
 ### App Live in Browser
 ![Browser](./bedrock-screenshots/altsoe0254423ddnsnet.png)
 
 ### HTTP 200 Response
-![HTTP 200](./bedrock-screenshots/HTTP%20200.png)
+![HTTP 200](./bedrock-screenshots/HTTP-200.png)
 
 ### EKS Cluster
 ![EKS](./bedrock-screenshots/project-bedrock-cluster.png)
@@ -245,32 +264,28 @@ helm upgrade --install bedrock-retail ./apps/retail-store-sample-app
 ![VPC](./bedrock-screenshots/vpc-04c53b138a32c4cf6.png)
 
 ### IAM User Policies
-![IAM](./bedrock-screenshots/IAM%20User%20Policies.png)
+![IAM](./bedrock-screenshots/IAM-User-Policies.png)
 
 ### RBAC Verification
-![RBAC](./bedrock-screenshots/RBAC%20Verification.png)
+![RBAC](./bedrock-screenshots/RBAC-Verification.png)
 
 ### Control Plane Logging
-![Logging](./bedrock-screenshots/Control%20Plane%20Logging.png)
+![Logging](./bedrock-screenshots/Control-Plane-Logging.png)
 
 ### FluentBit and CloudWatch Pods
-![FluentBit](./bedrock-screenshots/FluentBit%20+%20CloudWatch%20Pods.png)
+![FluentBit](./bedrock-screenshots/FluentBit+CloudWatch-Pods.png)
 
 ### Lambda Trigger Working
-![Lambda](./bedrock-screenshots/Lambda%20Trigger%20Working.png)
+![Lambda](./bedrock-screenshots/Lambda-Trigger-Working.png)
 
 ### Resource Tagging
-![Tagging](./bedrock-screenshots/Resource%20Tagging.png)
+![Tagging](./bedrock-screenshots/Resource-Tagging.png)
 
 ### CI/CD Pipeline
-![CICD](./bedrock-screenshots/cicd%20github.png)
+![CICD](./bedrock-screenshots/cicd-github.png)
 
 ### grading.json
 ![Grading](./bedrock-screenshots/grading-json.png)
-
----
-
-Last Updated: 2026-06-07 | Project: karatu-2025-capstone | Student ID: adejare-alt-soe-025-4423
 
 ---
 
@@ -303,3 +318,9 @@ To deploy this solution, simply run the standard Terraform workflow in an AWS ac
 terraform init
 terraform apply```
 The code provided is verified correct and will function immediately upon removal of the organizational block or deployment to a standard account. All other project requirements (EKS, RDS, DynamoDB, IAM, CI/CD, Observability) are fully deployed and operational.
+
+---
+
+Last Updated: 2026-06-07 | Project: karatu-2025-capstone | Student ID: adejare-alt-soe-025-4423
+
+---
