@@ -180,6 +180,7 @@ kubectl describe certificate retail-store-tls -n retail-app
 kubectl get secret retail-store-tls -n retail-app
 kubectl get clusterissuer
 kubectl get pods -n cert-manager
+```
 
 ### Let's Encrypt Certificate (Kubernetes Level)
 ![Lets Encrypt via cert-manager](./tls-https-screenshot/Lets-Encrypt-via-cert-manager.png)
@@ -316,11 +317,16 @@ The repository contains the complete, functional implementation:
 To deploy this solution, simply run the standard Terraform workflow in an AWS account without SCP restrictions:
 ```bash
 terraform init
-terraform apply```
+terraform apply
 The code provided is verified correct and will function immediately upon removal of the organizational block or deployment to a standard account. All other project requirements (EKS, RDS, DynamoDB, IAM, CI/CD, Observability) are fully deployed and operational.
-
+```
 ---
 
 Last Updated: 2026-06-07 | Project: karatu-2025-capstone | Student ID: adejare-alt-soe-025-4423
 
 ---
+
+
+
+
+
