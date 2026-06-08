@@ -160,11 +160,44 @@ aws s3 cp /etc/hostname s3://bedrock-assets-adejare-alt-soe-025-4423/test.txt aw
 
 ## TLS / HTTPS
 
-- cert-manager installed via Helm in cert-manager namespace
-- Let's Encrypt production ACME (HTTP-01 via ALB)
+### Implementation
+- cert-manager installed via Helm in `cert-manager` namespace
+- Let's Encrypt **production** ACME issuer (`letsencrypt-prod`)
+- HTTP-01 challenge via ALB Ingress
+- TLS certificate successfully issued and valid
 
-kubectl get pods -n cert-manager kubectl get certificate -n retail-app kubectl get clusterissuer
+### Certificate Status
+| Field | Value |
+|-------|-------|
+| Certificate Name | retail-store-tls |
+| Domain | altsoe0254423.ddns.net |
+| Status | ✅ READY: True |
+| Issuer | letsencrypt-prod (Let's Encrypt) |
+| Valid From | 2026-06-06 |
+| Valid Until | 2026-09-04 |
+| Secret | retail-store-tls (kubernetes.io/tls) |
 
+### Verification Commands
+```bash
+kubectl get certificate -n retail-app
+kubectl describe certificate retail-store-tls -n retail-app
+kubectl get secret retail-store-tls -n retail-app
+kubectl get clusterissuer
+kubectl get pods -n cert-manager
+⚠️ HTTPS at ALB Level — Limitation
+Status: TLS Certificate Issued and Valid / ALB-Level HTTPS Blocked by DNS Constraint
+The Let's Encrypt TLS certificate is fully issued and valid (confirmed READY: True). However, HTTPS termination at the AWS ALB requires an ACM (AWS Certificate Manager) certificate, not a Kubernetes TLS secret.
+Root Cause: The AWS ALB Controller requires an ACM certificate ARN to open port 443. ACM certificate validation requires adding a CNAME DNS record to prove domain ownership. This was not possible due to the following constraint:
+Method	Result
+DNS Validation via NoIP	❌ Free NoIP only supports one CNAME per hostname (already used for HTTP ALB routing)
+
+![Grabbing ALB DNS IP](./tls-https-screenshot/grabing-alb-dns-ip.png)
+
+![Requesting Cert](./tls-https-screenshot/requesting-cert.png)
+
+![Verifying](./tls-https-screenshot/digging-https-endpoint.png)
+
+Dynamic IP (nip.io workaround)	❌ ALB IPs rotate dynamically — unreliable for production use
 
 ---
 
