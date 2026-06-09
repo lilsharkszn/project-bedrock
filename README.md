@@ -306,7 +306,7 @@ helm upgrade --install bedrock-retail ./apps/retail-store-sample-app
 The Infrastructure as Code (Terraform) and Application Code (Lambda/Python) for the **Serverless Extension (Section 4.5)** are fully implemented, tested for syntax, and ready for immediate deployment. However, the actual resource creation (`aws_lambda_function`) was blocked in this specific environment due to an **AWS Organization Service Control Policy (SCP)**.
 
 ### Technical Evidence
-1.  **IAM Permissions Verified:** The user `starttech-admin-new` has `AdministratorAccess` and explicit allow policies for Lambda.
+1.  **IAM Permissions Verified:** The user has `AdministratorAccess` and explicit allow policies for Lambda.
     *   *Proof:* `aws iam simulate-principal-policy` returns `"EvalDecision": "allowed"`.
 2.  **API Block Confirmed:** Despite allowed permissions, the AWS API returns `AccessDeniedException`.
     *   *Proof:* Command `aws lambda create-function` returns `Error: AccessDeniedException`.
