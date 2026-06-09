@@ -61,7 +61,7 @@ resource "aws_lambda_function" "processor" {
 #  lifecycle {    #ignored it by default
  #   ignore_changes = [last_modified]
   #}
-#}
+}
 
 # 5. Allow S3 Bucket to invoke the Lambda function
 resource "aws_lambda_permission" "allow_s3" {

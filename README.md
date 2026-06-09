@@ -58,7 +58,6 @@ Highly available, production-grade microservices deployment running on AWS EKS, 
 | Endpoint | URL |
 |----------|-----|
 | HTTP | http://altsoe0254423.ddns.net |
-| HTTPS | https://altsoe0254423.ddns.net |
 | ALB | k8s-retailap-retailst-17d19cf248-712128132.us-east-1.elb.amazonaws.com |
 
 ### Running Pods (retail-app namespace)
@@ -287,6 +286,12 @@ helm upgrade --install bedrock-retail ./apps/retail-store-sample-app
 
 ### grading.json
 ![Grading](./bedrock-screenshots/grading-json.png)
+
+### s3 bucket content
+![Pods](./bedrock-screenshots/s3-bucket.png)
+
+### Redis
+![Pods](./bedrock-screenshots/redis-scaled.png)
 
 ---
 
