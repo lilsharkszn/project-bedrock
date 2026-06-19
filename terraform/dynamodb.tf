@@ -1,6 +1,6 @@
 resource "aws_dynamodb_table" "carts" {
-  name         = "items"           # Matches the default table target name for the retail-store-sample-app carts service
-  billing_mode = "PAY_PER_REQUEST" # On-demand pricing ensures we only pay for active hits, minimizing idle costs
+  name         = "items"
+  billing_mode = "PAY_PER_REQUEST"
   hash_key     = "id"
 
   attribute {
@@ -8,8 +8,19 @@ resource "aws_dynamodb_table" "carts" {
     type = "S"
   }
 
+  attribute {
+    name = "customerId"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "idx_global_customerId"
+    hash_key        = "customerId"
+    projection_type = "ALL"
+  }
+
   tags = {
-    Name = "project-bedrock-carts-dynamodb"
-    Project = "karatu-2025-capstone"  
+    Name    = "project-bedrock-carts-dynamodb"
+    Project = "karatu-2025-capstone"
   }
 }

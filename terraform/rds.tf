@@ -124,8 +124,8 @@ resource "kubernetes_secret" "catalog_db" {
   }
 
   data = {
-    username = aws_ssm_parameter.db_username.value
-    password = aws_ssm_parameter.db_password.value
+    RETAIL_CATALOG_PERSISTENCE_USER     = aws_ssm_parameter.db_username.value
+    RETAIL_CATALOG_PERSISTENCE_PASSWORD = aws_ssm_parameter.db_password.value
   }
 
   depends_on = [kubernetes_namespace.retail_app]
@@ -138,8 +138,8 @@ resource "kubernetes_secret" "orders_db" {
   }
 
   data = {
-    username = aws_ssm_parameter.db_username.value
-    password = aws_ssm_parameter.db_password.value
+    RETAIL_ORDERS_PERSISTENCE_USERNAME = aws_ssm_parameter.db_username.value
+    RETAIL_ORDERS_PERSISTENCE_PASSWORD = aws_ssm_parameter.db_password.value
   }
 
   depends_on = [kubernetes_namespace.retail_app]

@@ -33,3 +33,21 @@ variable "assets_bucket_name" {
   default     = "bedrock-assets-hassan-alt-soe-025-4423"
   description = "Unique S3 assets bucket name for this deployment, bedrock-asset-alt-soe-025-4423 was attached to previous aws account"
 }
+
+variable "node_desired_size" {
+  type        = number
+  default     = 3
+  description = "Desired number of EKS worker nodes"
+}
+
+variable "node_min_size" {
+  type        = number
+  default     = 1
+  description = "Minimum number of EKS worker nodes"
+}
+
+variable "node_max_size" {
+  type        = number
+  default     = 3
+  description = "Maximum number of EKS worker nodes"
+}

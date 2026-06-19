@@ -24,9 +24,9 @@ module "eks" {
       ami_type       = "AL2023_x86_64_STANDARD" # Optimized Amazon Linux 2023 for EKS
       instance_types = ["t3.small"]
 
-      min_size     = 1
-      max_size     = 3
-      desired_size = 2
+      min_size     = var.node_min_size
+      max_size     = var.node_max_size
+      desired_size = var.node_desired_size
 
       # Ensure worker nodes run strictly in our secure private subnets
       subnet_ids = module.vpc.private_subnets
@@ -42,4 +42,16 @@ module "eks" {
     ClusterRole = "Master"
     Project     = "karatu-2025-capstone" # Mandatory Capstone Tag
   }
+}
+
+# DynamoDB access for carts service
+resource "aws_iam_role_policy_attachment" "node_dynamodb" {
+  role       = module.eks.eks_managed_node_groups["initial"].iam_role_name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+}
+
+# XRay access for observability
+resource "aws_iam_role_policy_attachment" "node_xray" {
+  role       = module.eks.eks_managed_node_groups["initial"].iam_role_name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
 }

@@ -254,18 +254,12 @@ resource "kubernetes_ingress_v1" "retail_ingress" {
       "alb.ingress.kubernetes.io/scheme"       = "internet-facing"
       "alb.ingress.kubernetes.io/group.name"        = "bedrock-retail"  
       "alb.ingress.kubernetes.io/target-type"  = "ip"  
-      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}, {\"HTTPS\": 443}]"  
-      "cert-manager.io/cluster-issuer"         = "letsencrypt-prod"  
+      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}]"
     }  
   }  
   
   spec {  
     ingress_class_name = "alb"  
-  
-    tls {  
-      hosts       = ["altsoe0254423.ddns.net"]  
-      secret_name = "retail-store-tls"  
-    }  
   
     rule {  
       host = "altsoe0254423.ddns.net"  
