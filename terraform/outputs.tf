@@ -38,3 +38,9 @@ output "custom_host_address" {
   value       = "altsoe0254423.ddns.net"
 }
 
+
+output "developer_console_password" {
+  description = "Console login password for bedrock-dev-view"
+  value       = aws_iam_user_login_profile.developer_console.password
+  sensitive   = true
+}

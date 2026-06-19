@@ -30,6 +30,6 @@ variable "app_namespace" {
 
 variable "assets_bucket_name" {
   type        = string
-  default     = "bedrock-assets-adejare-alt-soe-025-4423"
+  default     = "bedrock-assets-hassan-alt-soe-025-4423"
   description = "Unique S3 assets bucket name for this deployment, bedrock-asset-alt-soe-025-4423 was attached to previous aws account"
 }

@@ -6,14 +6,14 @@ Highly available, production-grade microservices deployment running on AWS EKS, 
 
 - **Network:** VPC across 2 AZs with public/private subnets and NAT Gateway
 - **Orchestration:** Amazon EKS Cluster v1.34 with CloudWatch control plane logging
-- **Data Layer:** RDS PostgreSQL (catalog), RDS MySQL (orders), DynamoDB (carts)
+- **Data Layer:** RDS PostgreSQL (orders), RDS MySQL (catalog), DynamoDB (carts)
 - **Ingress:** AWS ALB Controller routing traffic to UI service
 - **TLS/HTTPS:** cert-manager + Let's Encrypt via HTTP-01 challenge
 - **Observability:** FluentBit + CloudWatch Agent on all nodes
 - **Serverless:** S3 upload triggers Lambda to CloudWatch Logs
 - **CI/CD:** GitHub Actions — terraform plan on PR, terraform apply on merge
 
-![Architecture Diagram](./bedrock-screenshots/bedrockarchitecture.png)
+![Architecture Diagram](./architecture-diagram.png)
 
 ---
 
@@ -47,7 +47,7 @@ Highly available, production-grade microservices deployment running on AWS EKS, 
 - RDS MySQL: bedrock-mysql (orders)
 - RDS PostgreSQL: bedrock-postgres (catalog)
 - DynamoDB: items table (carts)
-- S3 Assets: bedrock-assets-adejare-alt-soe-025-4423
+- S3 Assets: bedrock-assets-hassan-alt-soe-025-4423
 - Lambda: bedrock-asset-processor (Python)
 - Tag: Project: karatu-2025-capstone
 
@@ -103,7 +103,7 @@ gh workflow run CI_CD.yml --ref main
 
 ## Terraform Remote State
 
-- bucket: bedrock-tf-state-alt-soe-025-4423
+- bucket: bedrock-tfstate-hassan-alt-soe-025-4423
 - key: stage/bedrock-infra/terraform.tfstate
 - region: us-east-1
 - encrypt: true
@@ -141,18 +141,18 @@ kubectl get pods -n amazon-cloudwatch aws logs tail /aws/lambda/bedrock-asset-pr
 
 ## Serverless — S3 + Lambda
 
-- Bucket: bedrock-assets-adejare-alt-soe-025-4423
+- Bucket: bedrock-assets-hassan-alt-soe-025-4423
 - Lambda: bedrock-asset-processor (Python)
 - Trigger: S3 PutObject → Lambda → logs "Image received: [filename]"
 
 Note on S3 Bucket Naming: The required bucket name was previously created on an older AWS
 account that was disabled due to a payment failure. Since S3 bucket names are globally unique
-and cannot be reclaimed across accounts, the bucket was renamed with an adejare prefix while
+and cannot be reclaimed across accounts, the bucket was renamed with a hassan prefix while
 retaining the student ID suffix. All functionality is fully operational.
 
 Test:
 
-aws s3 cp /etc/hostname s3://bedrock-assets-adejare-alt-soe-025-4423/test.txt aws logs tail /aws/lambda/bedrock-asset-processor --since 1m
+aws s3 cp /etc/hostname s3://bedrock-assets-hassan-alt-soe-025-4423/test.txt aws logs tail /aws/lambda/bedrock-asset-processor --since 1m
 
 
 ---
@@ -187,7 +187,7 @@ kubectl get pods -n cert-manager
 ### Level 2: AWS Infrastructure (ACM for ALB)
 | Field | Value |
 |-------|-------|
-| Certificate ARN | arn:aws:acm:us-east-1:225201316405:certificate/0a974b9a... |
+| Certificate ARN | To be updated after new deployment |
 | Domain | 54.163.208.187.nip.io |
 | Status | PENDING_VALIDATION |
 | Lives In | AWS Certificate Manager |
@@ -327,7 +327,7 @@ The code provided is verified correct and will function immediately upon removal
 ```
 ---
 
-Last Updated: 2026-06-07 | Project: karatu-2025-capstone | Student ID: adejare-alt-soe-025-4423
+Last Updated: 2026-06-07 | Project: karatu-2025-capstone | Student ID: alt-soe-025-4423
 
 ---
 

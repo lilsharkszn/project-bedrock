@@ -111,3 +111,16 @@ resource "aws_eks_access_policy_association" "developer_view" {
 
   depends_on = [aws_eks_access_entry.developer]
 }
+
+# ============================================
+# Console Login Profile
+# Required: grading requires console credentials
+# ============================================
+resource "aws_iam_user_login_profile" "developer_console" {
+  user                    = aws_iam_user.developer.name
+  password_reset_required = false
+
+  lifecycle {
+    ignore_changes = [password_length, password_reset_required, pgp_key]
+  }
+}
