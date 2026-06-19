@@ -154,8 +154,9 @@ jobs:
         run: |
           terraform -chdir=terraform output -json | \
             jq '
-              .developer_secret_access_key.value = "REDACTED-SEE-GOOGLE-DOC" |
-              .developer_access_key_id.value = "REDACTED-SEE-GOOGLE-DOC"
+              .developer_secret_access_key.value = "REDACTED-SEE-SUBMISSION-DOCUMENT" |
+              .developer_access_key_id.value = "REDACTED-SEE-SUBMISSION-DOCUMENT" |
+              .developer_console_password.value = "REDACTED-SEE-SUBMISSION-DOCUMENT"
             ' \
             > grading.json
           echo "✅ grading.json generated with all credentials redacted"

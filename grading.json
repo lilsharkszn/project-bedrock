@@ -27,17 +27,17 @@
   "developer_access_key_id": {
     "sensitive": false,
     "type": "string",
-    "value": "REDACTED-SEE-GOOGLE-DOC"
+    "value": "REDACTED-SEE-SUBMISSION-DOCUMENT"
   },
   "developer_console_password": {
     "sensitive": true,
     "type": "string",
-    "value": "0#eAL{t|m0HzjXraTBgG"
+    "value": "REDACTED-SEE-SUBMISSION-DOCUMENT"
   },
   "developer_secret_access_key": {
     "sensitive": true,
     "type": "string",
-    "value": "REDACTED-SEE-GOOGLE-DOC"
+    "value": "REDACTED-SEE-SUBMISSION-DOCUMENT"
   },
   "region": {
     "sensitive": false,
