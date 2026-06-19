@@ -2,17 +2,17 @@
   "alb_url": {
     "sensitive": false,
     "type": "string",
-    "value": "k8s-retailap-retailst-17d19cf248-712128132.us-east-1.elb.amazonaws.com"
+    "value": "k8s-bedrockretail-3bf7b782f8-1779842580.us-east-1.elb.amazonaws.com"
   },
   "assets_bucket_name": {
     "sensitive": false,
     "type": "string",
-    "value": "bedrock-assets-adejare-alt-soe-025-4423"
+    "value": "bedrock-assets-hassan-alt-soe-025-4423"
   },
   "cluster_endpoint": {
     "sensitive": false,
     "type": "string",
-    "value": "https://2FC683E0C6FD533A942914EF4E4B4007.gr7.us-east-1.eks.amazonaws.com"
+    "value": "https://BBCF19D026D8746239793F8867ED39F4.gr7.us-east-1.eks.amazonaws.com"
   },
   "cluster_name": {
     "sensitive": false,
@@ -29,6 +29,11 @@
     "type": "string",
     "value": "REDACTED-SEE-GOOGLE-DOC"
   },
+  "developer_console_password": {
+    "sensitive": true,
+    "type": "string",
+    "value": "0#eAL{t|m0HzjXraTBgG"
+  },
   "developer_secret_access_key": {
     "sensitive": true,
     "type": "string",
@@ -42,6 +47,6 @@
   "vpc_id": {
     "sensitive": false,
     "type": "string",
-    "value": "vpc-04c53b138a32c4cf6"
+    "value": "vpc-0d29ddd7a8a7fc1ee"
   }
 }
