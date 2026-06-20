@@ -1,4 +1,4 @@
-# Project Bedrock — Retail Store EKS Microservices Capstone
+# Project Bedrock - Retail Store EKS Microservices Capstone
 
 Highly available, production-grade microservices deployment running on AWS EKS, automated completely through HashiCorp Terraform.
 
@@ -10,7 +10,7 @@ Highly available, production-grade microservices deployment running on AWS EKS, 
 - **Ingress:** AWS ALB Controller routing traffic to UI service
 - **Observability:** FluentBit + CloudWatch Agent on all nodes
 - **Serverless:** S3 upload triggers Lambda to CloudWatch Logs
-- **CI/CD:** GitHub Actions — terraform plan on PR, terraform apply on merge
+- **CI/CD:** GitHub Actions - terraform plan on PR, terraform apply on merge
 
 ![Architecture Diagram](./architecture-diagram.png)
 
@@ -42,8 +42,8 @@ Highly available, production-grade microservices deployment running on AWS EKS, 
 ## Infrastructure Details
 
 - Region: us-east-1
-- VPC: project-bedrock-vpc — 10.0.0.0/16
-- EKS: project-bedrock-cluster — v1.34 — t3.small nodes (3 nodes)
+- VPC: project-bedrock-vpc - 10.0.0.0/16
+- EKS: project-bedrock-cluster - v1.34 - t3.small nodes (3 nodes)
 - RDS MySQL: bedrock-mysql (catalog service)
 - RDS PostgreSQL: bedrock-postgres (orders service)
 - DynamoDB: items table with GSI idx_global_customerId (carts service)
