@@ -87,7 +87,7 @@ GitHub Secrets Required:
 
 ### Trigger Methods
 
-```bash
+```
 # Push to Main
 git add .
 git commit -m "feat: description"
@@ -124,14 +124,15 @@ aws eks update-kubeconfig \
 # Grant admin kubectl access
 aws eks create-access-entry \
   --cluster-name project-bedrock-cluster \
-  --principal-arn arn:aws:iam::<ACCOUNT_ID>:user/<ADMIN_USER> \
+  --principal-arn arn:aws:iam::986263532474:user/bedrock-admin \
   --type STANDARD
 
 aws eks associate-access-policy \
   --cluster-name project-bedrock-cluster \
-  --principal-arn arn:aws:iam::<ACCOUNT_ID>:user/<ADMIN_USER> \
+  --principal-arn arn:aws:iam::986263532474:user/bedrock-admin \
   --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy \
   --access-scope type=cluster
+
 
 # Verify
 kubectl get pods -n retail-app
@@ -165,6 +166,7 @@ Serverless - S3 + Lambda
 Bucket: bedrock-assets-hassan-alt-soe-025-4423
 Lambda: bedrock-asset-processor (Python 3.11)
 Trigger: S3 PutObject → Lambda → logs Image received: [filename]
+
 Note on S3 Bucket Naming: The original bucket name (bedrock-assets-alt-soe-025-4423) was created on a prior AWS account that was disabled. Since S3 bucket names are globally unique and cannot be reclaimed, the bucket was renamed with a hassan prefix while retaining the student ID suffix. All functionality is fully operational.
 
 aws s3 cp /etc/hostname s3://bedrock-assets-hassan-alt-soe-025-4423/test.txt
@@ -225,6 +227,7 @@ carts CrashLoopVerify DynamoDB GSI idx_global_customerId exists
 kubectl UnauthorizedRun aws eks create-access-entry for your IAM user
 State lock stuckterraform force-unlock <LOCK_ID>
 CI/CD kubectl errorEnsure kubeconfig step runs before terraform apply
+```
 
 Screenshots and Proof of Deployment
 
