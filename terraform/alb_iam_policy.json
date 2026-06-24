@@ -242,6 +242,7 @@
         "elasticloadbalancing:AddListenerCertificates",
         "elasticloadbalancing:RemoveListenerCertificates",
         "elasticloadbalancing:ModifyRule",
+                "elasticloadbalancing:SetRulePriorities",
         "elasticloadbalancing:DescribeListenerAttributes"
       ],
       "Resource": "*"
