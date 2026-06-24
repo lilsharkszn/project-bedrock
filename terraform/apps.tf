@@ -242,6 +242,8 @@ resource "helm_release" "aws_lb_controller" {
 
 resource "kubernetes_ingress_v1" "retail_ingress" {  
   depends_on = [  
+    null_resource.vpc_destroy_gate,  
+    null_resource.delete_ingress_before_destroy,  
     helm_release.aws_lb_controller,  
     helm_release.retail_store_ui,  
     null_resource.cluster_issuer  
@@ -298,4 +300,64 @@ resource "aws_eks_addon" "cloudwatch_observability" {
   tags = {
     Project = "karatu-2025-capstone"
   }
+}
+
+# ==========================================
+resource "null_resource" "delete_ingress_before_destroy" {
+  triggers = {
+    cluster_name = "project-bedrock-cluster"
+    region       = "us-east-1"
+    namespace    = "retail-app"
+    ingress_name = "retail-store-ingress"
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      echo "==> Updating kubeconfig..."
+      aws eks update-kubeconfig \
+        --name ${self.triggers.cluster_name} \
+        --region ${self.triggers.region} || true
+
+      echo "==> Deleting ingress to trigger ALB deletion..."
+      kubectl delete ingress ${self.triggers.ingress_name} \
+        -n ${self.triggers.namespace} \
+        --ignore-not-found=true || true
+
+      echo "==> Waiting 90s for ALB and ENIs to clear..."
+      sleep 90
+
+      echo "==> ALB cleanup complete."
+    EOT
+  }
+
+  depends_on = [module.eks]
+}
+
+resource "null_resource" "vpc_destroy_gate" {
+  triggers = {
+    always = timestamp()
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      echo "==> VPC destroy gate: confirming ALB is gone..."
+      for i in 1 2 3 4 5 6; do
+        COUNT=$(aws ec2 describe-load-balancers \
+          --region us-east-1 \
+          --query 'length(LoadBalancers[?contains(LoadBalancerName, `k8s-bedrockretail`)])' \
+          --output text 2>/dev/null || echo "0")
+        if [ "$COUNT" = "0" ]; then
+          echo "==> ALB confirmed gone. Safe to destroy VPC."
+          exit 0
+        fi
+        echo "    ALB still exists, waiting 30s... ($i/6)"
+        sleep 30
+      done
+      echo "==> Proceeding anyway after timeout."
+    EOT
+  }
+
+  depends_on = [null_resource.delete_ingress_before_destroy]
 }
